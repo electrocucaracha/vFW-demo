@@ -14,11 +14,7 @@ set -o xtrace
 
 # install_dependencies() - Install required dependencies
 function install_dependencies {
-    apt install -y software-properties-common
-    add-apt-repository -y ppa:openjdk-r/ppa
-    apt update
-
-    apt install --allow-unauthenticated -y make wget openjdk-8-jdk apt-transport-https ca-certificates darkstat
+    apt install -y darkstat
 
     # Configure and run Darkstat
     sed -i "s/START_DARKSTAT=.*/START_DARKSTAT=yes/g" /etc/darkstat/init.cfg
@@ -30,13 +26,8 @@ function install_dependencies {
 # install_vfw_scripts() -
 function install_vfw_scripts {
     pushd /opt
-    for script in v_sink_init.sh vsink.sh; do
-        wget https://git.onap.org/demo/plain/vnfs/vFW/scripts/$script
-        chmod +x $script
-    done
-
-    # TODO(electrocucaracha) Fix it in upstream
-    sed -i 's/# Provides:/# Provides:          sink/g' vsink.sh
+    wget https://git.onap.org/demo/plain/vnfs/vFW/scripts/{v_sink_init,vsink}.sh
+    chmod +x *.sh
 
     mv vsink.sh /etc/init.d
     update-rc.d vsink.sh defaults
