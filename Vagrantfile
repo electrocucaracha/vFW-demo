@@ -24,12 +24,10 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.provider 'virtualbox' do |v|
-    v.customize ["modifyvm", :id, "--memory", 8192]
-    v.customize ["modifyvm", :id, "--cpus", 2]
+    v.customize ["modifyvm", :id, "--memory", 1024]
   end
   config.vm.provider 'libvirt' do |v|
-    v.memory = 8192
-    v.cpus = 2
+    v.memory = 1024
     v.nested = true
     v.cpu_mode = 'host-passthrough'
   end

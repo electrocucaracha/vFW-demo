@@ -15,7 +15,7 @@ set -o xtrace
 # install_dependencies() - Install required dependencies
 function install_dependencies {
     apt-get update
-    apt-get install -y -qq wget openjdk-8-jre bridge-utils net-tools bsdmainutils make libcurl4-gnutls-dev
+    apt-get install -y -qq wget openjdk-8-jre bridge-utils net-tools bsdmainutils make gcc libcurl4-gnutls-dev
 }
 
 # install_vpp() - Install VPP
@@ -48,10 +48,10 @@ function install_vfw_scripts {
 
     wget "${repo_url}/ves5/ves_vfw_reporting/${version}/ves_vfw_reporting-${version}-demo.tar.gz"
     tar -zmxf ves_vfw_reporting-${version}-demo.tar.gz
-    mv ves_vfw_reporting-$version /opt/VES/evel/evel-library/code/VESreporting
+    mv ves_vfw_reporting-$version VES/evel/evel-library/code/VESreporting
 
-    chmod +x /opt/VES/evel/evel-library/code/VESreporting/go-client.sh
-    pushd /opt/VES/evel/evel-library/bldjobs/
+    chmod +x VES/evel/evel-library/code/VESreporting/go-client.sh
+    pushd VES/evel/evel-library/bldjobs/
     make clean
     make
     sleep 1

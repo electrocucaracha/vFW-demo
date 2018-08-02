@@ -14,11 +14,11 @@ set -o xtrace
 
 # install_dependencies() - Install required dependencies
 function install_dependencies {
-    apt install -y darkstat
+    apt-get update
+    apt install -y wget darkstat net-tools
 
     # Configure and run Darkstat
-    sed -i "s/START_DARKSTAT=.*/START_DARKSTAT=yes/g" /etc/darkstat/init.cfg
-    sed -i "s/INTERFACE=.*/INTERFACE=\"-i eth1\"/g" /etc/darkstat/init.cfg
+    sed -i "s/START_DARKSTAT=.*/START_DARKSTAT=yes/g;s/INTERFACE=.*/INTERFACE=\"-i eth1\"/g" /etc/darkstat/init.cfg
 
     systemctl restart darkstat
 }
