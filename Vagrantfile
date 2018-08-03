@@ -23,11 +23,7 @@ Vagrant.configure("2") do |config|
     config.proxy.no_proxy = $no_proxy
   end
 
-  config.vm.provider 'virtualbox' do |v|
-    v.customize ["modifyvm", :id, "--memory", 1024]
-  end
   config.vm.provider 'libvirt' do |v|
-    v.memory = 1024
     v.nested = true
     v.cpu_mode = 'host-passthrough'
   end
