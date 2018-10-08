@@ -24,8 +24,7 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.provider 'libvirt' do |v|
-    v.nested = true
-    v.cpu_mode = 'host-passthrough'
+    v.cpu_mode = 'host-passthrough' # DPDK requires Supplemental Streaming SIMD Extensions 3 (SSSE3)
   end
 
   config.vm.define :packetgen do |packetgen|
