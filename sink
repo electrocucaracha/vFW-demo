@@ -11,6 +11,7 @@
 set -o nounset
 set -o pipefail
 set -o xtrace
+set -o errexit
 
 # install_dependencies() - Install required dependencies
 function install_dependencies {
@@ -26,7 +27,7 @@ function install_dependencies {
 # install_vfw_scripts() -
 function install_vfw_scripts {
     pushd /opt
-    wget https://git.onap.org/demo/plain/vnfs/vFW/scripts/{v_sink_init,vsink}.sh
+    wget -q https://git.onap.org/demo/plain/vnfs/vFW/scripts/{v_sink_init,vsink}.sh
     chmod +x *.sh
 
     mv vsink.sh /etc/init.d

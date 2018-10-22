@@ -12,6 +12,7 @@ end
 
 Vagrant.configure("2") do |config|
   config.vm.box = "elastic/ubuntu-16.04-x86_64"
+  config.vm.box_version = '20181021.0.0'
 
   if ENV['http_proxy'] != nil and ENV['https_proxy'] != nil
     if not Vagrant.has_plugin?('vagrant-proxyconf')

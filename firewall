@@ -11,6 +11,7 @@
 set -o nounset
 set -o pipefail
 set -o xtrace
+set -o errexit
 
 # install_dependencies() - Install required dependencies
 function install_dependencies {
@@ -29,35 +30,46 @@ function install_vpp {
     apt-get install -y -qq vpp vpp-lib vpp-plugins vpp-dpdk-dkms
 }
 
+function _untar_url {
+    local repo_url="https://nexus.onap.org/content/repositories/staging/org/onap/demo/vnf/"
+    local file_subpath=$1
+
+    wget -q -O tmp_file.tar.gz "${repo_url}/${file_subpath}"
+    sha1=$(wget ${repo_url}/${file_subpath}.sha1 -q -O -)
+    if [[ $(sha1sum tmp_file.tar.gz  | awk '{print $1}') != "$sha1" ]]; then
+        echo "The downloaded file is corrupted"
+        exit 1
+    fi
+    tar -zmxf tmp_file.tar.gz
+    rm tmp_file.tar.gz
+}
+
 # install_vfw_scripts() -
 function install_vfw_scripts {
     local version=$(cat /opt/config/demo_artifacts_version.txt)
-    local repo_url="https://nexus.onap.org/content/repositories/staging/org/onap/demo/vnf/"
+    local ves_path=VES
+    local ves_reporting_path="${ves_path}/evel/evel-library"
 
     pushd /opt
-    wget https://git.onap.org/demo/plain/vnfs/vFW/scripts/{v_firewall_init,vfirewall}.sh
+    wget -q https://git.onap.org/demo/plain/vnfs/vFW/scripts/{v_firewall_init,vfirewall}.sh
     chmod +x *.sh
 
-    wget "${repo_url}/sample-distribution/${version}/sample-distribution-${version}-hc.tar.gz"
-    tar -zmxf sample-distribution-$version-hc.tar.gz
+    _untar_url "sample-distribution/${version}/sample-distribution-${version}-hc.tar.gz"
     mv sample-distribution-$version honeycomb
 
-    wget "${repo_url}/ves5/ves/${version}/ves-${version}-demo.tar.gz"
-    tar -zmxf ves-${version}-demo.tar.gz
-    mv ves-$version VES
+    _untar_url "ves5/ves/${version}/ves-${version}-demo.tar.gz"
+    mv ves-$version $ves_path
 
-    wget "${repo_url}/ves5/ves_vfw_reporting/${version}/ves_vfw_reporting-${version}-demo.tar.gz"
-    tar -zmxf ves_vfw_reporting-${version}-demo.tar.gz
-    mv ves_vfw_reporting-$version VES/evel/evel-library/code/VESreporting
+    _untar_url "ves5/ves_vfw_reporting/${version}/ves_vfw_reporting-${version}-demo.tar.gz"
+    mkdir -p $ves_reporting_path/code
+    mv ves_vfw_reporting-$version $ves_reporting_path/code/VESreporting
 
-    chmod +x VES/evel/evel-library/code/VESreporting/go-client.sh
-    pushd VES/evel/evel-library/bldjobs/
+    chmod +x $ves_reporting_path/code/VESreporting/go-client.sh
+    pushd $ves_reporting_path/bldjobs/
     make clean
     make
     sleep 1
     popd
-
-    rm *.tar.gz
 
     # TODO(electrocucaracha) Fix it in upstream
     sed -i 's/start vpp/systemctl start vpp/g' v_firewall_init.sh

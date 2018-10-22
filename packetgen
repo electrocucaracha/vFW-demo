@@ -11,6 +11,7 @@
 set -o nounset
 set -o pipefail
 set -o xtrace
+set -o errexit
 
 # install_dependencies() - Install required dependencies
 function install_dependencies {
@@ -29,24 +30,34 @@ function install_vpp {
     apt-get install -y -qq vpp vpp-lib vpp-plugins vpp-dpdk-dkms
 }
 
+function _untar_url {
+    local repo_url="https://nexus.onap.org/content/repositories/staging/org/onap/demo/vnf/"
+    local file_subpath=$1
+
+    wget -q -O tmp_file.tar.gz "${repo_url}/${file_subpath}"
+    sha1=$(wget ${repo_url}/${file_subpath}.sha1 -q -O -)
+    if [[ $(sha1sum tmp_file.tar.gz  | awk '{print $1}') != "$sha1" ]]; then
+        echo "The downloaded file is corrupted"
+        exit 1
+    fi
+    tar -zmxf tmp_file.tar.gz
+    rm tmp_file.tar.gz
+}
+
 # install_vfw_scripts() -
 function install_vfw_scripts {
     local version=$(cat /opt/config/demo_artifacts_version.txt)
-    local repo_url="https://nexus.onap.org/content/repositories/staging/org/onap/demo/vnf/"
 
     pushd /opt
-    wget https://git.onap.org/demo/plain/vnfs/vFW/scripts/{v_packetgen_init,vpacketgen,run_traffic_fw_demo}.sh
+    wget -q https://git.onap.org/demo/plain/vnfs/vFW/scripts/{v_packetgen_init,vpacketgen,run_traffic_fw_demo}.sh
     chmod +x *.sh
 
-    wget "${repo_url}/sample-distribution/${version}/sample-distribution-${version}-hc.tar.gz"
-    tar -zmxf sample-distribution-$version-hc.tar.gz
+    _untar_url "sample-distribution/${version}/sample-distribution-${version}-hc.tar.gz"
     mv sample-distribution-$version honeycomb
 
-    wget "${repo_url}/vfw/vfw_pg_streams/$version/vfw_pg_streams-$version-demo.tar.gz"
-    tar -zmxf vfw_pg_streams-$version-demo.tar.gz
+    _untar_url "vfw/vfw_pg_streams/$version/vfw_pg_streams-$version-demo.tar.gz"
     mv vfw_pg_streams-$version pg_streams
 
-    rm *.tar.gz
     sed -i 's/"restconf-binding-address": "127.0.0.1",/"restconf-binding-address": "0.0.0.0",/g' /opt/honeycomb/config/honeycomb.json
 
     # TODO(electrocucaracha) Fix it in upstream
