@@ -12,7 +12,6 @@ end
 
 Vagrant.configure("2") do |config|
   config.vm.box = "elastic/ubuntu-16.04-x86_64"
-  config.vm.box_version = '20181021.0.0'
 
   if ENV['http_proxy'] != nil and ENV['https_proxy'] != nil
     if not Vagrant.has_plugin?('vagrant-proxyconf')
@@ -32,19 +31,19 @@ Vagrant.configure("2") do |config|
     packetgen.vm.hostname = "packetgen"
     packetgen.vm.provision 'shell', path: 'packetgen'
     packetgen.vm.network :private_network, :ip => "192.168.10.2", :type => :static # unprotected_private_net_cidr
-    packetgen.vm.network :private_network, :ip => "10.10.12.2", :type => :static, :netmask => "16" # onap_private_net_cidr
+    packetgen.vm.network :private_network, :ip => "10.10.12.2", :type => :static, :netmask => "255.255.0.0" # onap_private_net_cidr
   end	
   config.vm.define :firewall do |firewall|
     firewall.vm.hostname = "firewall"
     firewall.vm.provision 'shell', path: 'firewall'
     firewall.vm.network :private_network, :ip => "192.168.10.3", :type => :static # unprotected_private_net_cidr
     firewall.vm.network :private_network, :ip => "192.168.20.3", :type => :static # protected_private_net_cidr
-    firewall.vm.network :private_network, :ip => "10.10.12.3", :type => :static, :netmask => "16" # onap_private_net_cidr
+    firewall.vm.network :private_network, :ip => "10.10.12.3", :type => :static, :netmask => "255.255.0.0" # onap_private_net_cidr
   end
   config.vm.define :sink do |sink|
     sink.vm.hostname = "sink"
     sink.vm.provision 'shell', path: 'sink'
     sink.vm.network :private_network, :ip => "192.168.20.4", :type => :static # protected_private_net_cidr
-    sink.vm.network :private_network, :ip => "10.10.12.4", :type => :static, :netmask => "16" # onap_private_net_cidr
+    sink.vm.network :private_network, :ip => "10.10.12.4", :type => :static, :netmask => "255.255.0.0" # onap_private_net_cidr
   end
 end
