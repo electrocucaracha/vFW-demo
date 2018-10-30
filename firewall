@@ -55,6 +55,7 @@ function install_vfw_scripts {
     chmod +x *.sh
 
     _untar_url "sample-distribution/${version}/sample-distribution-${version}-hc.tar.gz"
+    mkdir -p honeycomb
     mv sample-distribution-$version honeycomb
 
     _untar_url "ves5/ves/${version}/ves-${version}-demo.tar.gz"
