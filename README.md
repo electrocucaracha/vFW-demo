@@ -9,7 +9,7 @@ volumes of traffic.
   * [Firewall][2]: Reports the volume of traffic passing though to the
 ONAP DCAE collector.
   * [Traffic sink][3]: Displays the traffic volume that lands at the sink
-VM using the link http://192.168.20.4:667 through your browser
+VM using the link http://192.168.20.250:667 through your browser
 and enable automatic page refresh by clicking the "Off" button. You
 can see the traffic volume in the charts.
 
@@ -34,7 +34,7 @@ following command in a shell:
          -H "Content-Type: application/json" \
          -H "Cache-Control: no-cache" \
          -d '{"pg-streams":{"pg-stream": [{"id":"fw_udp1", "is-enabled":"true"},{"id":"fw_udp2", "is-enabled":"true"},{"id":"fw_udp3", "is-enabled":"true"},{"id":"fw_udp4", "is-enabled":"true"},{"id":"fw_udp5", "is-enabled":"true"}]}}' \
-        "http://192.168.10.2:8183/restconf/config/sample-plugin:sample-plugin/pg-streams"
+        "http://192.168.10.200:8183/restconf/config/sample-plugin:sample-plugin/pg-streams"
 ```
 
 The command above enables 5 streams.
