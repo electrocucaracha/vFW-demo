@@ -1,6 +1,23 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+vars = {
+  "demo_artifacts_version"     => "1.3.0",
+  'vfw_private_ip_0'           => '192.168.10.100',
+  'vfw_private_ip_1'           => '192.168.20.100',
+  'vfw_private_ip_2'           => '10.10.100.2',
+  'vpg_private_ip_0'           => '192.168.10.200',
+  'vpg_private_ip_1'           => '10.0.100.3',
+  'vsn_private_ip_0'           => '192.168.20.250',
+  'vsn_private_ip_1'           => '10.10.100.4',
+  'dcae_collector_ip'          => '10.0.4.1',
+  'dcae_collector_port'        => '8081',
+  'protected_net_gw'           => '192.168.20.100',
+  'protected_net_cidr'         => '192.168.20.0/24',
+  'protected_private_net_cidr' => '192.168.10.0/24',
+  'onap_private_net_cidr'      => '10.10.0.0/16'
+}
+
 if ENV['no_proxy'] != nil or ENV['NO_PROXY']
   $no_proxy = ENV['NO_PROXY'] || ENV['no_proxy'] || "127.0.0.1,localhost"
   $subnet = "192.168.121"
@@ -29,21 +46,21 @@ Vagrant.configure("2") do |config|
 
   config.vm.define :packetgen do |packetgen|
     packetgen.vm.hostname = "packetgen"
-    packetgen.vm.provision 'shell', path: 'packetgen'
-    packetgen.vm.network :private_network, :ip => "192.168.10.200", :type => :static, :netmask => "255.255.255.0" # unprotected_private_net_cidr
-    packetgen.vm.network :private_network, :ip => "10.0.100.3", :type => :static, :netmask => "255.255.0.0" # onap_private_net_cidr
+    packetgen.vm.provision 'shell', path: 'packetgen', env: vars
+    packetgen.vm.network :private_network, :ip => vars['vpg_private_ip_0'], :type => :static, :netmask => "255.255.255.0" # unprotected_private_net_cidr
+    packetgen.vm.network :private_network, :ip => vars['vpg_private_ip_1'], :type => :static, :netmask => "255.255.0.0" # onap_private_net_cidr
   end	
   config.vm.define :firewall do |firewall|
     firewall.vm.hostname = "firewall"
-    firewall.vm.provision 'shell', path: 'firewall'
-    firewall.vm.network :private_network, :ip => "192.168.10.100", :type => :static, :netmask => "255.255.255.0" # unprotected_private_net_cidr
-    firewall.vm.network :private_network, :ip => "192.168.20.100", :type => :static, :netmask => "255.255.255.0" # protected_private_net_cidr
-    firewall.vm.network :private_network, :ip => "10.10.100.2", :type => :static, :netmask => "255.255.0.0" # onap_private_net_cidr
+    firewall.vm.provision 'shell', path: 'firewall', env: vars
+    firewall.vm.network :private_network, :ip => vars['vfw_private_ip_0'], :type => :static, :netmask => "255.255.255.0" # unprotected_private_net_cidr
+    firewall.vm.network :private_network, :ip => vars['vfw_private_ip_1'], :type => :static, :netmask => "255.255.255.0" # protected_private_net_cidr
+    firewall.vm.network :private_network, :ip => vars['vfw_private_ip_2'], :type => :static, :netmask => "255.255.0.0" # onap_private_net_cidr
   end
   config.vm.define :sink do |sink|
     sink.vm.hostname = "sink"
-    sink.vm.provision 'shell', path: 'sink'
-    sink.vm.network :private_network, :ip => "192.168.20.250", :type => :static, :netmask => "255.255.255.0" # protected_private_net_cidr
-    sink.vm.network :private_network, :ip => "10.10.100.4", :type => :static, :netmask => "255.255.0.0" # onap_private_net_cidr
+    sink.vm.provision 'shell', path: 'sink', env: vars
+    sink.vm.network :private_network, :ip => vars['vsn_private_ip_0'], :type => :static, :netmask => "255.255.255.0" # protected_private_net_cidr
+    sink.vm.network :private_network, :ip => vars['vsn_private_ip_1'], :type => :static, :netmask => "255.255.0.0" # onap_private_net_cidr
   end
 end
