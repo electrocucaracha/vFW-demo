@@ -13,6 +13,8 @@ VM using the link http://192.168.20.250:667 through your browser
 and enable automatic page refresh by clicking the "Off" button. You
 can see the traffic volume in the charts.
 
+![Diagram](diagram.png)
+
 ## Adjust packet generator:
 
 The packet generator contains 10 streams: fw\_udp1, fw\_udp2,
