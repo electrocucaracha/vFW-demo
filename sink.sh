@@ -15,8 +15,8 @@ set -o errexit
 
 # install_dependencies() - Install required dependencies
 function install_dependencies {
-    apt-get update
-    apt install -y wget darkstat net-tools
+    sudo apt-get update
+    sudo apt install -y wget darkstat net-tools
 
     # Configure and run Darkstat
     sed -i "s/START_DARKSTAT=.*/START_DARKSTAT=yes/g;s/INTERFACE=.*/INTERFACE=\"-i eth1\"/g" /etc/darkstat/init.cfg
@@ -40,7 +40,7 @@ mkdir -p /opt/config/
 echo "${protected_net_cidr:-192.168.20.0/24}" > /opt/config/protected_net_cidr.txt
 echo "${vfw_private_ip_0:-192.168.10.100}" > /opt/config/fw_ipaddr.txt
 echo "${vsn_private_ip_0:-192.168.20.250}" > /opt/config/sink_ipaddr.txt
-echo "${demo_artifacts_version:-1.3.0}" > /opt/config/demo_artifacts_version.txt
+echo "${demo_artifacts_version:-1.6.0}" > /opt/config/demo_artifacts_version.txt
 echo "${protected_net_gw:-192.168.20.100}" > /opt/config/protected_net_gw.txt
 echo "${protected_private_net_cidr:-192.168.10.0/24}" > /opt/config/unprotected_net.txt
 

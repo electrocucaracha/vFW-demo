@@ -15,23 +15,25 @@ set -o errexit
 
 # install_dependencies() - Install required dependencies
 function install_dependencies {
-    apt-get update
-    apt-get install -y -qq wget openjdk-8-jre bridge-utils net-tools bsdmainutils make gcc libcurl4-gnutls-dev
+    sudo apt-get update
+    sudo apt-get install -y -qq wget openjdk-8-jre bridge-utils net-tools bsdmainutils make gcc libcurl4-gnutls-dev
 }
 
 # install_vpp() - Install VPP
 function install_vpp {
-    local RELEASE=".stable.1609"
+    sudo apt-get update
+    sudo apt-get install -y -qq apt-transport-https
 
-    apt-get update
-    apt-get install -y -qq apt-transport-https
-    echo "deb [trusted=yes] https://nexus.fd.io/content/repositories/fd.io$RELEASE.ubuntu.$(lsb_release -c -s).main/ ./" | tee -a /etc/apt/sources.list.d/99fd.io.list
-    apt-get update
-    apt-get install -y -qq vpp vpp-lib vpp-plugins vpp-dpdk-dkms
+    # shellcheck disable=SC1091
+    source /etc/os-release || source /usr/lib/os-release
+    echo "deb [trusted=yes] https://packagecloud.io/fdio/release/ubuntu $VERSION_CODENAME main" | sudo tee /etc/apt/sources.list.d/99fd.io.list
+    curl -L https://packagecloud.io/fdio/release/gpgkey | sudo apt-key add -
+    sudo apt-get update
+    sudo apt-get install -y -qq vpp vpp-plugin-core vpp-plugin-dpdk
 }
 
 function _untar_url {
-    local repo_url="https://nexus.onap.org/content/repositories/staging/org/onap/demo/vnf/"
+    local repo_url="https://nexus.onap.org/content/repositories/releases/org/onap/demo/vnf/"
     local file_subpath=$1
 
     wget -q -O tmp_file.tar.gz "${repo_url}/${file_subpath}"
@@ -84,7 +86,7 @@ mkdir -p /opt/config/
 echo "${protected_net_cidr:-192.168.20.0/24}" > /opt/config/protected_net_cidr.txt
 echo "${vfw_private_ip_0:-192.168.10.100}" > /opt/config/fw_ipaddr.txt
 echo "${vsn_private_ip_0:-192.168.20.250}" > /opt/config/sink_ipaddr.txt
-echo "${demo_artifacts_version:-1.3.0}" > /opt/config/demo_artifacts_version.txt
+echo "${demo_artifacts_version:-1.6.0}" > /opt/config/demo_artifacts_version.txt
 echo "${dcae_collector_ip:-10.0.4.1}" > /opt/config/dcae_collector_ip.txt
 echo "${dcae_collector_port:-8081}" > /opt/config/dcae_collector_port.txt
 

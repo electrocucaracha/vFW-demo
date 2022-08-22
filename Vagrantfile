@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 vars = {
-  "demo_artifacts_version"     => "1.3.0",
+  "demo_artifacts_version"     => "1.6.0",
   'vfw_private_ip_0'           => '192.168.10.100',
   'vfw_private_ip_1'           => '192.168.20.100',
   'vfw_private_ip_2'           => '10.10.100.2',
@@ -28,7 +28,7 @@ if ENV['no_proxy'] != nil or ENV['NO_PROXY']
 end
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "elastic/ubuntu-16.04-x86_64"
+  config.vm.box = "generic/ubuntu1804"
 
   if ENV['http_proxy'] != nil and ENV['https_proxy'] != nil
     if not Vagrant.has_plugin?('vagrant-proxyconf')
