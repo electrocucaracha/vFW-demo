@@ -46,20 +46,20 @@ Vagrant.configure("2") do |config|
 
   config.vm.define :packetgen do |packetgen|
     packetgen.vm.hostname = "packetgen"
-    packetgen.vm.provision 'shell', path: 'packetgen', env: vars
+    packetgen.vm.provision 'shell', path: 'packetgen.sh', env: vars
     packetgen.vm.network :private_network, :ip => vars['vpg_private_ip_0'], :type => :static, :netmask => "255.255.255.0" # unprotected_private_net_cidr
     packetgen.vm.network :private_network, :ip => vars['vpg_private_ip_1'], :type => :static, :netmask => "255.255.0.0" # onap_private_net_cidr
   end	
   config.vm.define :firewall do |firewall|
     firewall.vm.hostname = "firewall"
-    firewall.vm.provision 'shell', path: 'firewall', env: vars
+    firewall.vm.provision 'shell', path: 'firewall.sh', env: vars
     firewall.vm.network :private_network, :ip => vars['vfw_private_ip_0'], :type => :static, :netmask => "255.255.255.0" # unprotected_private_net_cidr
     firewall.vm.network :private_network, :ip => vars['vfw_private_ip_1'], :type => :static, :netmask => "255.255.255.0" # protected_private_net_cidr
     firewall.vm.network :private_network, :ip => vars['vfw_private_ip_2'], :type => :static, :netmask => "255.255.0.0" # onap_private_net_cidr
   end
   config.vm.define :sink do |sink|
     sink.vm.hostname = "sink"
-    sink.vm.provision 'shell', path: 'sink', env: vars
+    sink.vm.provision 'shell', path: 'sink.sh', env: vars
     sink.vm.network :private_network, :ip => vars['vsn_private_ip_0'], :type => :static, :netmask => "255.255.255.0" # protected_private_net_cidr
     sink.vm.network :private_network, :ip => vars['vsn_private_ip_1'], :type => :static, :netmask => "255.255.0.0" # onap_private_net_cidr
   end

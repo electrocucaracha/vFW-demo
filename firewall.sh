@@ -35,7 +35,7 @@ function _untar_url {
     local file_subpath=$1
 
     wget -q -O tmp_file.tar.gz "${repo_url}/${file_subpath}"
-    sha1=$(wget ${repo_url}/${file_subpath}.sha1 -q -O -)
+    sha1=$(wget "${repo_url}/${file_subpath}.sha1" -q -O -)
     if [[ $(sha1sum tmp_file.tar.gz  | awk '{print $1}') != "$sha1" ]]; then
         echo "The downloaded file is corrupted"
         exit 1
@@ -46,24 +46,24 @@ function _untar_url {
 
 # install_vfw_scripts() -
 function install_vfw_scripts {
-    local version=$(cat /opt/config/demo_artifacts_version.txt)
+    version=$(cat /opt/config/demo_artifacts_version.txt)
     local ves_path=VES
     local ves_reporting_path="${ves_path}/evel/evel-library"
 
     pushd /opt
     wget -q https://git.onap.org/demo/plain/vnfs/vFW/scripts/{v_firewall_init,vfirewall}.sh
-    chmod +x *.sh
+    chmod +x ./*.sh
 
     _untar_url "sample-distribution/${version}/sample-distribution-${version}-hc.tar.gz"
     mkdir -p honeycomb
-    mv sample-distribution-$version honeycomb
+    mv "sample-distribution-$version" honeycomb
 
     _untar_url "ves5/ves/${version}/ves-${version}-demo.tar.gz"
-    mv ves-$version $ves_path
+    mv "ves-$version" "$ves_path"
 
     _untar_url "ves5/ves_vfw_reporting/${version}/ves_vfw_reporting-${version}-demo.tar.gz"
     mkdir -p $ves_reporting_path/code
-    mv ves_vfw_reporting-$version $ves_reporting_path/code/VESreporting
+    mv "ves_vfw_reporting-$version" "$ves_reporting_path/code/VESreporting"
 
     chmod +x $ves_reporting_path/code/VESreporting/go-client.sh
     pushd $ves_reporting_path/bldjobs/
@@ -81,12 +81,12 @@ function install_vfw_scripts {
 }
 
 mkdir -p /opt/config/
-echo "$protected_net_cidr"     > /opt/config/protected_net_cidr.txt
-echo "$vfw_private_ip_0"       > /opt/config/fw_ipaddr.txt
-echo "$vsn_private_ip_0"       > /opt/config/sink_ipaddr.txt
-echo "$demo_artifacts_version" > /opt/config/demo_artifacts_version.txt
-echo "$dcae_collector_ip"      > /opt/config/dcae_collector_ip.txt
-echo "$dcae_collector_port"    > /opt/config/dcae_collector_port.txt
+echo "${protected_net_cidr:-192.168.20.0/24}" > /opt/config/protected_net_cidr.txt
+echo "${vfw_private_ip_0:-192.168.10.100}" > /opt/config/fw_ipaddr.txt
+echo "${vsn_private_ip_0:-192.168.20.250}" > /opt/config/sink_ipaddr.txt
+echo "${demo_artifacts_version:-1.3.0}" > /opt/config/demo_artifacts_version.txt
+echo "${dcae_collector_ip:-10.0.4.1}" > /opt/config/dcae_collector_ip.txt
+echo "${dcae_collector_port:-8081}" > /opt/config/dcae_collector_port.txt
 
 echo 'vm.nr_hugepages = 1024' >> /etc/sysctl.conf
 sysctl -p

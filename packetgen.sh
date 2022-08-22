@@ -35,7 +35,7 @@ function _untar_url {
     local file_subpath=$1
 
     wget -q -O tmp_file.tar.gz "${repo_url}/${file_subpath}"
-    sha1=$(wget ${repo_url}/${file_subpath}.sha1 -q -O -)
+    sha1=$(wget "${repo_url}/${file_subpath}.sha1" -q -O -)
     if [[ $(sha1sum tmp_file.tar.gz  | awk '{print $1}') != "$sha1" ]]; then
         echo "The downloaded file is corrupted"
         exit 1
@@ -46,23 +46,23 @@ function _untar_url {
 
 # install_vfw_scripts() -
 function install_vfw_scripts {
-    local version=$(cat /opt/config/demo_artifacts_version.txt)
+    version=$(cat /opt/config/demo_artifacts_version.txt)
 
     pushd /opt
     wget -q https://git.onap.org/demo/plain/vnfs/vFW/scripts/{v_packetgen_init,vpacketgen,run_traffic_fw_demo}.sh
-    chmod +x *.sh
+    chmod +x ./*.sh
 
     _untar_url "sample-distribution/${version}/sample-distribution-${version}-hc.tar.gz"
-    mv sample-distribution-$version honeycomb
+    mv "sample-distribution-$version" honeycomb
 
     _untar_url "vfw/vfw_pg_streams/$version/vfw_pg_streams-$version-demo.tar.gz"
-    mv vfw_pg_streams-$version pg_streams
+    mv "vfw_pg_streams-$version" pg_streams
 
     sed -i 's/"restconf-binding-address": "127.0.0.1",/"restconf-binding-address": "0.0.0.0",/g' /opt/honeycomb/config/honeycomb.json
 
     # TODO(electrocucaracha) Fix it in upstream
     sed -i 's/start vpp/systemctl start vpp/g' v_packetgen_init.sh
-    sed -i 's|/opt/honeycomb/sample-distribution-\$VERSION/honeycomb|/opt/honeycomb/honeycomb|g' v_packetgen_init.sh
+    sed -i "s|/opt/honeycomb/sample-distribution-\$VERSION/honeycomb|/opt/honeycomb/honeycomb|g" v_packetgen_init.sh
     mv vpacketgen.sh /etc/init.d/
     update-rc.d vpacketgen.sh defaults
     systemctl start packetgen
@@ -70,10 +70,10 @@ function install_vfw_scripts {
 }
 
 mkdir -p /opt/config/
-echo "$protected_net_cidr"     > /opt/config/protected_net_cidr.txt
-echo "$vfw_private_ip_0"       > /opt/config/fw_ipaddr.txt
-echo "$vsn_private_ip_0"       > /opt/config/sink_ipaddr.txt
-echo "$demo_artifacts_version" > /opt/config/demo_artifacts_version.txt
+echo "${protected_net_cidr:-192.168.20.0/24}" > /opt/config/protected_net_cidr.txt
+echo "${vfw_private_ip_0:-192.168.10.100}" > /opt/config/fw_ipaddr.txt
+echo "${vsn_private_ip_0:-192.168.20.250}" > /opt/config/sink_ipaddr.txt
+echo "${demo_artifacts_version:-1.3.0}" > /opt/config/demo_artifacts_version.txt
 
 echo 'vm.nr_hugepages = 1024' >> /etc/sysctl.conf
 sysctl -p
