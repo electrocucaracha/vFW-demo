@@ -5,12 +5,13 @@
 This use case is composed of three virtual functions (VFs) running in
 separate Ubuntu Virtual Machines:
 
-* [Packet generator][1]: Sends packets to the packet sink through the
+* [Packet generator](packetgen.sh): Sends packets to the packet sink through the
 firewall. This includes a script that periodically generates different
 volumes of traffic.
-* [Firewall][2]: Reports the volume of traffic passing though to the
+* [Firewall](firewall.sh): Reports the volume of traffic passing though to the
 ONAP DCAE collector.
-* [Traffic sink][3]: Displays the traffic volume that lands at the sink
+* [Traffic sink](sink.sh): Displays the traffic volume that lands at the sink
+<!-- markdown-link-check-disable-next-line -->
 VM using the link <http://192.168.20.250:667> through your browser
 and enable automatic page refresh by clicking the "Off" button. You
 can see the traffic volume in the charts.
@@ -42,7 +43,3 @@ following command in a shell:
 ```
 
 The command above enables 5 streams.
-
-[1]: packetgen
-[2]: firewall
-[3]: sink
