@@ -1,4 +1,6 @@
 # vFirewall ONAP Use Case
+<!-- markdown-link-check-disable-next-line -->
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 This use case is composed of three virtual functions (VFs) running in
 separate Ubuntu Virtual Machines:
@@ -40,10 +42,6 @@ following command in a shell:
 ```
 
 The command above enables 5 streams.
-
-## License
-
-Apache-2.0
 
 [1]: packetgen
 [2]: firewall
