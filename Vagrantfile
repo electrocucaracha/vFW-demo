@@ -98,6 +98,18 @@ Vagrant.configure("2") do |config|
                                            :netmask => "255.255.255.0"
     # onap_private_net_cidr
     packetgen.vm.network :private_network, :ip => vars['vpg_private_ip_1'], :type => :static, :netmask => "255.255.0.0"
+    packetgen.trigger.after :up do |trigger|
+      trigger.info = 'Wait for starting packetgen service:'
+      trigger.run_remote = { inline: 'sleep 10' }
+    end
+    packetgen.trigger.after :up do |trigger|
+      trigger.info = 'Packet Generator log messages:'
+      trigger.run_remote = { inline: 'cat /var/log/vpacketgen.sh.log' }
+    end
+    packetgen.trigger.after :up do |trigger|
+      trigger.info = 'Packet Generator error messages:'
+      trigger.run_remote = { inline: 'cat /var/log/vpacketgen.sh.err' }
+    end
   end
   config.vm.define :firewall do |firewall|
     firewall.vm.hostname = "firewall"
@@ -108,6 +120,18 @@ Vagrant.configure("2") do |config|
     firewall.vm.network :private_network, :ip => vars['vfw_private_ip_1'], :type => :static, :netmask => "255.255.255.0"
     # onap_private_net_cidr
     firewall.vm.network :private_network, :ip => vars['vfw_private_ip_2'], :type => :static, :netmask => "255.255.0.0"
+    firewall.trigger.after :up do |trigger|
+      trigger.info = 'Wait for starting firewall service:'
+      trigger.run_remote = { inline: 'sleep 10' }
+    end
+    firewall.trigger.after :up do |trigger|
+      trigger.info = 'Firewall log messages:'
+      trigger.run_remote = { inline: 'sudo cat /var/log/vfirewall.sh.log' }
+    end
+    firewall.trigger.after :up do |trigger|
+      trigger.info = 'Firewall error messages:'
+      trigger.run_remote = { inline: 'sudo cat /var/log/vfirewall.sh.err' }
+    end
   end
   config.vm.define :sink do |sink|
     sink.vm.hostname = "sink"
@@ -116,5 +140,17 @@ Vagrant.configure("2") do |config|
     sink.vm.network :private_network, :ip => vars['vsn_private_ip_0'], :type => :static, :netmask => "255.255.255.0"
     # onap_private_net_cidr
     sink.vm.network :private_network, :ip => vars['vsn_private_ip_1'], :type => :static, :netmask => "255.255.0.0"
+    sink.trigger.after :up do |trigger|
+      trigger.info = 'Wait for starting sink service:'
+      trigger.run_remote = { inline: 'sleep 10' }
+    end
+    sink.trigger.after :up do |trigger|
+      trigger.info = 'Sink log messages:'
+      trigger.run_remote = { inline: 'sudo cat /var/log/vsink.sh.log' }
+    end
+    sink.trigger.after :up do |trigger|
+      trigger.info = 'Sink error messages:'
+      trigger.run_remote = { inline: 'sudo cat /var/log/vsink.sh.err' }
+    end
   end
 end
