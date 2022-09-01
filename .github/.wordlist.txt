@@ -1,3 +1,4 @@
+brightgreen
 config
 DCAE
 fw
@@ -10,6 +11,7 @@ opensource
 packetgen
 png
 restconf
+rubocop
 src
 svg
 udp

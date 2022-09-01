@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 ##############################################################################
@@ -11,7 +13,7 @@
 host = RbConfig::CONFIG['host_os']
 
 vars = {
-  "demo_artifacts_version" => "1.6.0",
+  'demo_artifacts_version' => '1.6.0',
   'vfw_private_ip_0' => '192.168.10.100',
   'vfw_private_ip_1' => '192.168.20.100',
   'vfw_private_ip_2' => '10.10.100.2',
@@ -36,30 +38,32 @@ when /mswin|mingw|cygwin/
   mem = `wmic computersystem Get TotalPhysicalMemory`.split[1].to_i / 1024
 end
 
-if ENV['no_proxy'] != nil or ENV['NO_PROXY']
-  $no_proxy = ENV['NO_PROXY'] || ENV['no_proxy'] || "127.0.0.1,localhost"
-  $subnet = "192.168.121"
+if !ENV['no_proxy'].nil? || ENV['NO_PROXY']
+  no_proxy = ENV['NO_PROXY'] || ENV['no_proxy'] || '127.0.0.1,localhost'
+  subnet = '192.168.121'
   # NOTE: This range is based on vagrant-libivirt network definition
   (1..27).each do |i|
-    $no_proxy += ",#{$subnet}.#{i}"
+    no_proxy += ",#{subnet}.#{i}"
   end
 end
 
-Vagrant.configure("2") do |config|
+# rubocop:disable Metrics/BlockLength
+Vagrant.configure('2') do |config|
+  # rubocop:enable Metrics/BlockLength
   config.vm.provider :libvirt
   config.vm.provider :virtualbox
 
-  config.vm.box = "generic/ubuntu1804"
+  config.vm.box = 'generic/ubuntu1804'
   config.vm.box_check_update = false
 
-  if ENV['http_proxy'] != nil and ENV['https_proxy'] != nil
-    if not Vagrant.has_plugin?('vagrant-proxyconf')
+  if !ENV['http_proxy'].nil? && !ENV['https_proxy'].nil?
+    unless Vagrant.has_plugin?('vagrant-proxyconf')
       system 'vagrant plugin install vagrant-proxyconf'
       raise 'vagrant-proxyconf was installed but it requires to execute again'
     end
-    config.proxy.http     = ENV['http_proxy'] || ENV['HTTP_PROXY'] || ""
-    config.proxy.https    = ENV['https_proxy'] || ENV['HTTPS_PROXY'] || ""
-    config.proxy.no_proxy = $no_proxy
+    config.proxy.http     = ENV['http_proxy'] || ENV['HTTP_PROXY'] || ''
+    config.proxy.https    = ENV['https_proxy'] || ENV['HTTPS_PROXY'] || ''
+    config.proxy.no_proxy = no_proxy
   end
 
   %i[virtualbox libvirt].each do |provider|
@@ -69,21 +73,21 @@ Vagrant.configure("2") do |config|
     end
   end
 
-  config.vm.provider "virtualbox" do |v|
+  config.vm.provider 'virtualbox' do |v|
     v.gui = false
-    v.customize ["modifyvm", :id, "--nictype1", "virtio", "--cableconnected1", "on"]
+    v.customize ['modifyvm', :id, '--nictype1', 'virtio', '--cableconnected1', 'on']
     # https://bugs.launchpad.net/cloud-images/+bug/1829625/comments/2
-    v.customize ["modifyvm", :id, "--uart1", "0x3F8", "4"]
-    v.customize ["modifyvm", :id, "--uartmode1", "file", File::NULL]
+    v.customize ['modifyvm', :id, '--uart1', '0x3F8', '4']
+    v.customize ['modifyvm', :id, '--uartmode1', 'file', File::NULL]
     # Enable nested paging for memory management in hardware
-    v.customize ["modifyvm", :id, "--nestedpaging", "on"]
+    v.customize ['modifyvm', :id, '--nestedpaging', 'on']
     # Use large pages to reduce Translation Lookaside Buffers usage
-    v.customize ["modifyvm", :id, "--largepages", "on"]
+    v.customize ['modifyvm', :id, '--largepages', 'on']
     # Use virtual processor identifiers  to accelerate context switching
-    v.customize ["modifyvm", :id, "--vtxvpid", "on"]
+    v.customize ['modifyvm', :id, '--vtxvpid', 'on']
   end
 
-  config.vm.provider :libvirt do |v, override|
+  config.vm.provider :libvirt do |v, _override|
     v.random_hostname = true
     v.management_network_address = '10.0.2.0/24'
     v.management_network_name = 'administration'
@@ -91,13 +95,13 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.define :packetgen do |packetgen|
-    packetgen.vm.hostname = "packetgen"
+    packetgen.vm.hostname = 'packetgen'
     packetgen.vm.provision 'shell', path: 'packetgen.sh', env: vars
     # unprotected_private_net_cidr
-    packetgen.vm.network :private_network, :ip => vars['vpg_private_ip_0'], :type => :static,
-                                           :netmask => "255.255.255.0"
+    packetgen.vm.network :private_network, ip: vars['vpg_private_ip_0'], type: :static,
+                                           netmask: '255.255.255.0'
     # onap_private_net_cidr
-    packetgen.vm.network :private_network, :ip => vars['vpg_private_ip_1'], :type => :static, :netmask => "255.255.0.0"
+    packetgen.vm.network :private_network, ip: vars['vpg_private_ip_1'], type: :static, netmask: '255.255.0.0'
     packetgen.trigger.after :up do |trigger|
       trigger.info = 'Wait for starting packetgen service:'
       trigger.run_remote = { inline: 'sleep 10' }
@@ -112,14 +116,14 @@ Vagrant.configure("2") do |config|
     end
   end
   config.vm.define :firewall do |firewall|
-    firewall.vm.hostname = "firewall"
+    firewall.vm.hostname = 'firewall'
     firewall.vm.provision 'shell', path: 'firewall.sh', env: vars
     # unprotected_private_net_cidr
-    firewall.vm.network :private_network, :ip => vars['vfw_private_ip_0'], :type => :static, :netmask => "255.255.255.0"
+    firewall.vm.network :private_network, ip: vars['vfw_private_ip_0'], type: :static, netmask: '255.255.255.0'
     # protected_private_net_cidr
-    firewall.vm.network :private_network, :ip => vars['vfw_private_ip_1'], :type => :static, :netmask => "255.255.255.0"
+    firewall.vm.network :private_network, ip: vars['vfw_private_ip_1'], type: :static, netmask: '255.255.255.0'
     # onap_private_net_cidr
-    firewall.vm.network :private_network, :ip => vars['vfw_private_ip_2'], :type => :static, :netmask => "255.255.0.0"
+    firewall.vm.network :private_network, ip: vars['vfw_private_ip_2'], type: :static, netmask: '255.255.0.0'
     firewall.trigger.after :up do |trigger|
       trigger.info = 'Wait for starting firewall service:'
       trigger.run_remote = { inline: 'sleep 10' }
@@ -134,12 +138,12 @@ Vagrant.configure("2") do |config|
     end
   end
   config.vm.define :sink do |sink|
-    sink.vm.hostname = "sink"
+    sink.vm.hostname = 'sink'
     sink.vm.provision 'shell', path: 'sink.sh', env: vars
     # protected_private_net_cidr
-    sink.vm.network :private_network, :ip => vars['vsn_private_ip_0'], :type => :static, :netmask => "255.255.255.0"
+    sink.vm.network :private_network, ip: vars['vsn_private_ip_0'], type: :static, netmask: '255.255.255.0'
     # onap_private_net_cidr
-    sink.vm.network :private_network, :ip => vars['vsn_private_ip_1'], :type => :static, :netmask => "255.255.0.0"
+    sink.vm.network :private_network, ip: vars['vsn_private_ip_1'], type: :static, netmask: '255.255.0.0'
     sink.trigger.after :up do |trigger|
       trigger.info = 'Wait for starting sink service:'
       trigger.run_remote = { inline: 'sleep 10' }
